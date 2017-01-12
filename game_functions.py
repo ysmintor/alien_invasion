@@ -12,9 +12,16 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
         # Create a new bullet and add it to the bullets group.
-        if len(bullets) < ai_settings.bullets_allowed:
-            new_bullet = Bullet(ai_settings, screen, ship)
-            bullets.add(new_bullet)
+        fire_bullet(ai_settings, bullets, screen, ship)
+    elif event.key == pygame.K_q:
+        sys.exit()
+
+
+def fire_bullet(ai_settings, bullets, screen, ship):
+    """Fire a bullet if limit not reached yet."""
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = Bullet(ai_settings, screen, ship)
+        bullets.add(new_bullet)
 
 
 def check_keyup_events(event, ship):
@@ -36,7 +43,7 @@ def check_events(ai_settings, screen, ship, bullets):
             check_keyup_events(event, ship)
 
 
-def update_screen(ai_settings, screen, ship, bullets):
+def update_screen(ai_settings, screen, ship, alien, bullets):
     """Update images on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)
@@ -45,5 +52,17 @@ def update_screen(ai_settings, screen, ship, bullets):
     for bullet in bullets.sprites():
         bullet.draw_bullet()
     ship.blitme()
+    alien.blitme()
     # Make the most recently drawn screen visible.
     pygame.display.flip()
+
+
+def update_bullets(bullets):
+    """Update position of bullets and get rid of old bullets."""
+    # Update bullet positions.
+    bullets.update()
+
+    # Get rid of bullets that have disappeared.
+    for bullet in bullets.copy():
+        if bullet.rect.bottom <= 0:
+            bullets.remove(bullet)
